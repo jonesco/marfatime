@@ -32,7 +32,7 @@ const DATA = [
     id: "bordo",
     name: "Bordo",
     category: "Eat & Drink",
-    blurb: "Solid lunch stop with fresh, tasty bites.",
+    blurb: "Italian deli offering fresh pasta, wood-fired bread, and seasonal gelato—all made on-site with stone-milled heirloom flours. Founded by Chef Michael Serva, they also stock imported olive oils, specialty cheeses, and charcuterie. A sublime lunch stop with truly fresh, tasty bites.",
     rating: 5,
   },
   {
@@ -92,18 +92,38 @@ const DATA = [
     name: "Cochineal",
     category: "Eat & Drink",
     blurb: "Thoughtful, high-end dining. Supposed to reopen in summer. Keep an eye on it.",
+    rating: 4,
+  },
+  {
+    id: "marfa-spirit-company",
+    name: "Marfa Spirit Company",
+    category: "Eat & Drink",
+    blurb: "Nice place to get a drink. Specialize in Sotal but have other liquors that they make on site. Recommend the margarita or a Marfa Mule.",
+    rating: 4,
+  },
+  {
+    id: "the-sentinel",
+    name: "The Sentinel",
+    category: "Eat & Drink",
+    blurb: "Home to local newspaper and a super bougie coffee shop.",
     rating: 3,
   },
   {
-    id: "el-cosmico",
-    name: "El Cosmico",
+    id: "larrys",
+    name: "Larry's",
     category: "Eat & Drink",
-    blurb:
-      "Camp-style hotel with a fun shop and bar. Sometimes live bands or karaoke. The shop leans bohemian.",
-    rating: 3,
+    blurb: "Best hamburger in Far West Texas in my opinion. Open 11-4pm, Wednesday - Thursday. Real good.",
+    rating: 5,
   },
 
   // Shops & Things to Do
+  {
+    id: "ebike-marfa",
+    name: "eBike Marfa",
+    category: "Shops & Things to Do",
+    blurb: "The best way to explore Marfa is by bike. Rent an electric bike and cruise town with ease, or venture out on Pinto Canyon Road—a scenic paved route that stretches miles into the high plains desert toward the Chinati Mountains with barely any traffic. Highly recommended if you have the time.",
+    rating: 5,
+  },
   {
     id: "presidio-courthouse",
     name: "Presidio County Courthouse",
