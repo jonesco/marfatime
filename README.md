@@ -9,8 +9,6 @@ A friendly, sophisticated knowledge base for visitors to Marfa, Texas. Built as 
 - **Search functionality** - Find spots by name, description, or tips
 - **Star ratings** - Rate and view ratings for each location
 - **Direct integrations** - Quick links to Google Maps and web search
-- **Admin mode** - Edit content with password protection
-- **Local storage** - Persists custom additions and edits
 - **Responsive design** - Works great on mobile and desktop
 
 ## Getting Started
@@ -46,9 +44,6 @@ npm run dev
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
 
-## Admin Access
-
-To edit content, click the "Admin" button in the footer and use the password: `6812248`
 
 ## Deployment
 

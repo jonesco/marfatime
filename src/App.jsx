@@ -7,14 +7,6 @@ import { Search, X, SlidersHorizontal, MapPin, Link as LinkIcon, Utensils, Store
 // ---------------------------
 // Data & persistence helpers
 // ---------------------------
-const STORAGE_KEY = "marfaTimeDataV1"; // single declaration
-function clone(o) { return JSON.parse(JSON.stringify(o)); }
-function validItem(x) {
-  return (
-    x && typeof x.id === "string" && typeof x.name === "string" &&
-    typeof x.category === "string" && typeof (x.rating ?? 3) === "number"
-  );
-}
 
 const DATA = [
   // Eat & Drink
@@ -284,41 +276,6 @@ function isDark(period) {
   return period === "night" || period === "sunset" || period === "midday";
 }
 
-// ---------------------------
-// Admin Add Form
-// ---------------------------
-function AdminAddForm({ items, setItems }) {
-  const [form, setForm] = useState({ id: "", name: "", category: "Eat & Drink", status: "", blurb: "", tips: "", rating: 3 });
-  return (
-    <div className="grid gap-2 md:grid-cols-2">
-      <input className="border rounded-xl px-3 py-2" placeholder="ID (unique, e.g., my-new-spot)" value={form.id} onChange={(e)=> setForm({ ...form, id: e.target.value })} />
-      <input className="border rounded-xl px-3 py-2" placeholder="Name" value={form.name} onChange={(e)=> setForm({ ...form, name: e.target.value })} />
-      <select className="border rounded-xl px-3 py-2" value={form.category} onChange={(e)=> setForm({ ...form, category: e.target.value })}>
-        {CATEGORIES.filter(c=>c.key!=="All").map(c=> <option key={c.key} value={c.key}>{c.key}</option>)}
-      </select>
-      <input className="border rounded-xl px-3 py-2" placeholder="Status (optional)" value={form.status} onChange={(e)=> setForm({ ...form, status: e.target.value })} />
-      <textarea className="border rounded-xl px-3 py-2 md:col-span-2" placeholder="Blurb / description" value={form.blurb} onChange={(e)=> setForm({ ...form, blurb: e.target.value })} />
-      <input className="border rounded-xl px-3 py-2 md:col-span-2" placeholder="Tip (optional)" value={form.tips} onChange={(e)=> setForm({ ...form, tips: e.target.value })} />
-      <div className="flex items-center gap-2 md:col-span-2">
-        <span className="text-sm">Rating:</span>
-        {[1,2,3,4,5].map(r => (
-          <button key={r} className={`text-xs px-2 py-1 rounded border ${r===form.rating?"bg-neutral-100":""}`} onClick={()=> setForm({ ...form, rating: r })}>{r}</button>
-        ))}
-        <button
-          className="ml-auto px-3 py-2 rounded-xl border bg-white hover:bg-neutral-50 text-sm"
-          onClick={() => {
-            const newItem = { id: form.id.trim(), name: form.name, category: form.category, blurb: form.blurb, tips: form.tips, rating: form.rating };
-            if (!validItem(newItem)) return;
-            if (items.some(x => x.id === newItem.id)) return;
-            const next = [...items, newItem];
-            setItems(next);
-            setForm({ id: "", name: "", category: "Eat & Drink", status: "", blurb: "", tips: "", rating: 3 });
-          }}
-        >Add tile</button>
-      </div>
-    </div>
-  );
-}
 
 // ---------------------------
 // Component
@@ -336,12 +293,8 @@ export default function App() {
   // Time & theme
   const [now, setNow] = useState(new Date());
 
-  // Admin + data state
+  // Data state
   const [items, setItems] = useState(DATA);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showAdminAuth, setShowAdminAuth] = useState(false);
-  const [adminInput, setAdminInput] = useState("");
-  const [snapshot, setSnapshot] = useState(null); // for cancel
 
   // Clock for header theme
   useEffect(() => {
@@ -349,32 +302,7 @@ export default function App() {
     return () => clearInterval(id);
   }, []);
 
-  // Load saved items once
-  useEffect(() => {
-    try {
-      if (typeof window !== "undefined") {
-        const raw = window.localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) {
-            const scrubbed = parsed.map((it) => {
-              if (it && typeof it === 'object') { const { status, ...rest } = it; return rest; }
-              return it;
-            });
-            if (scrubbed.every(validItem)) setItems(scrubbed);
-          }
-        }
-      }
-    } catch {}
-  }, []);
 
-  function saveItems(next) {
-    try {
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      }
-    } catch {}
-  }
 
   const period = useMemo(() => getPeriod(now.getHours()), [now]);
   const skyStyle = useMemo(() => getSkyStyle(period), [period]);
@@ -555,23 +483,6 @@ export default function App() {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 py-6">
-        {isAdmin && (
-          <div className="mb-4 p-3 rounded-xl border bg-amber-50 text-amber-900 flex items-center gap-2">
-            <strong>Admin mode</strong>
-            <span className="text-xs">Edit tiles inline. Changes are not saved until you click Save.</span>
-            <div className="ml-auto flex items-center gap-2">
-              <button onClick={() => { saveItems(items); setIsAdmin(false); setSnapshot(null); }} className="px-3 py-2 rounded-xl border bg-white hover:bg-neutral-50 text-sm" title="Save changes">Save</button>
-              <button onClick={() => { if (snapshot) { setItems(snapshot); } setIsAdmin(false); setSnapshot(null); }} className="px-3 py-2 rounded-xl border bg-white hover:bg-neutral-50 text-sm" title="Cancel and discard changes">Cancel</button>
-            </div>
-          </div>
-        )}
-
-        {isAdmin && (
-          <div className="mb-6 p-3 rounded-2xl border bg-white">
-            <h3 className="font-semibold mb-2">Add a new tile</h3>
-            <AdminAddForm items={items} setItems={setItems} />
-          </div>
-        )}
 
         {/* Results */}
         <section>
@@ -593,114 +504,33 @@ export default function App() {
                     )}
                   </div>
                   <div className="flex-1">
-                    {isAdmin ? (
-                      <input
-                        value={item.name}
-                        onChange={(e) => {
-                          const next = clone(items); const i = next.findIndex(n => n.id === item.id);
-                          if (i > -1) { next[i].name = e.target.value; setItems(next); }
-                        }}
-                        className="font-semibold leading-tight w-full border rounded-lg px-2 py-1"
-                      />
-                    ) : (
-                      <h3 className="font-semibold leading-tight">{item.name}</h3>
-                    )}
+                    <h3 className="font-semibold leading-tight">{item.name}</h3>
 
                     <div className="mt-1 flex items-center gap-2 text-xs">
-                      {isAdmin ? (
-                        <select
-                          value={item.category}
-                          onChange={(e) => {
-                            const next = clone(items); const i = next.findIndex(n => n.id === item.id);
-                            if (i > -1) { next[i].category = e.target.value; setItems(next); }
-                          }}
-                          className="px-2 py-1 rounded border"
-                        >
-                          {CATEGORIES.filter(c => c.key !== "All").map(c => (
-                            <option key={c.key} value={c.key}>{c.key}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">{item.category}</span>
-                      )}
+                      <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">{item.category}</span>
                     </div>
 
                     <div className="mt-1 text-sm" aria-label={`Rating ${item.rating ?? 3} out of 5`}>
-                      {isAdmin ? (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-amber-700">{stars(item.rating ?? 3)}</span>
-                          <div className="flex items-center gap-1">
-                            {[1,2,3,4,5].map((r) => (
-                              <button
-                                key={r}
-                                onClick={() => {
-                                  const next = clone(items); const i = next.findIndex(n => n.id === item.id);
-                                  if (i > -1) { next[i].rating = r; setItems(next); }
-                                }}
-                                className={`text-xs px-2 py-1 rounded border hover:bg-neutral-50 ${r === (item.rating ?? 3) ? "bg-neutral-100" : ""}`}
-                                title={`Set ${r} star${r > 1 ? "s" : ""}`}
-                              >{r}</button>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="font-medium text-amber-700">{stars(item.rating ?? 3)}</span>
-                      )}
+                      <span className="font-medium text-amber-700">{stars(item.rating ?? 3)}</span>
                     </div>
                   </div>
                 </div>
 
-                {isAdmin ? (
-                  <textarea
-                    value={item.blurb || ""}
-                    onChange={(e) => {
-                      const next = clone(items); const i = next.findIndex(n => n.id === item.id);
-                      if (i > -1) { next[i].blurb = e.target.value; setItems(next); }
-                    }}
-                    className="mt-3 text-sm text-neutral-700 border rounded-xl p-2"
-                    placeholder="Description / blurb"
-                  />
-                ) : (
-                  item.blurb && <p className="mt-3 text-sm text-neutral-700">{item.blurb}</p>
-                )}
+                {item.blurb && <p className="mt-3 text-sm text-neutral-700">{item.blurb}</p>}
 
-                {isAdmin ? (
-                  <input
-                    value={item.tips || ""}
-                    onChange={(e) => {
-                      const next = clone(items); const i = next.findIndex(n => n.id === item.id);
-                      if (i > -1) { next[i].tips = e.target.value; setItems(next); }
-                    }}
-                    className="mt-2 text-sm border rounded-xl p-2"
-                    placeholder="Tip (optional)"
-                  />
-                ) : (
-                  item.tips && (
-                    <p className="mt-2 text-sm text-neutral-600"><span className="font-medium">Tip:</span> {item.tips}</p>
-                  )
+                {item.tips && (
+                  <p className="mt-2 text-sm text-neutral-600"><span className="font-medium">Tip:</span> {item.tips}</p>
                 )}
 
                 <div className="mt-4 flex items-center gap-2">
-                  {!isAdmin && (
-                    <>
-                      <a href={toMapQuery(item.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50" title="Open in Maps">
-                        <MapPin className="w-4 h-4" />
-                        Maps
-                      </a>
-                      <a href={toWebQuery(item.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50" title="Search the web">
-                        <LinkIcon className="w-4 h-4" />
-                        Search
-                      </a>
-                    </>
-                  )}
-
-                  {isAdmin && (
-                    <button
-                      onClick={() => { const next = items.filter(n => n.id !== item.id); setItems(next); }}
-                      className="ml-auto text-sm px-3 py-2 rounded-xl border hover:bg-neutral-50 text-rose-700"
-                      title="Remove tile"
-                    >Remove</button>
-                  )}
+                  <a href={toMapQuery(item.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50" title="Open in Maps">
+                    <MapPin className="w-4 h-4" />
+                    Maps
+                  </a>
+                  <a href={toWebQuery(item.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50" title="Search the web">
+                    <LinkIcon className="w-4 h-4" />
+                    Search
+                  </a>
                 </div>
               </article>
             ))}
@@ -711,28 +541,9 @@ export default function App() {
       <footer className="max-w-6xl mx-auto px-4 pb-8 pt-4 text-sm text-neutral-500">
         <div className="flex items-center">
           <span>Made for easy Marfa trip planning. Double-check hours and availability since small-town schedules can shift.</span>
-          <button onClick={() => setShowAdminAuth(true)} className="ml-auto underline text-neutral-600 hover:text-neutral-900" title="Admin login">Admin</button>
         </div>
       </footer>
 
-      {showAdminAuth && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/30">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-xl border">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold">Admin login</h3>
-              <button className="p-1 rounded hover:bg-neutral-100" onClick={() => setShowAdminAuth(false)} aria-label="Close"><X className="w-4 h-4"/></button>
-            </div>
-            <label className="text-sm">Password</label>
-            <input type="password" value={adminInput} onChange={(e) => setAdminInput(e.target.value)} className="mt-2 w-full border rounded-xl px-3 py-2" placeholder="Enter password" />
-            <div className="mt-3 flex gap-2 justify-end">
-              <button className="px-3 py-2 rounded-xl border bg-white hover:bg-neutral-50" onClick={() => setShowAdminAuth(false)}>Cancel</button>
-              <button className="px-3 py-2 rounded-xl border bg-neutral-900 text-white hover:bg-neutral-800" onClick={() => { if (adminInput === "6812248") { setSnapshot(clone(items)); setIsAdmin(true); setShowAdminAuth(false); setAdminInput(""); } }}>
-                Enter
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -788,9 +599,6 @@ function runTests() {
     console.assert(/maps\/search/.test(toMapQuery("Test")), "toMapQuery format ok");
     console.assert(/google\.com\/search\?q=/.test(toWebQuery("Test")), "toWebQuery format ok");
 
-    // validItem basic
-    console.assert(validItem({ id: 'x', name: 'y', category: 'Eat & Drink', rating: 3 }) === true, 'validItem true');
-    console.assert(validItem({ id: 'x', name: 'y', category: 'Eat & Drink' }) === true, 'validItem defaults rating');
 
     console.log("All tests passed");
   } catch (e) {
