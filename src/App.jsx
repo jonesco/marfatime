@@ -23,9 +23,9 @@ const DATA = [
   },
   {
     id: "angels",
-    name: "Angel’s",
+    name: "Angel's",
     category: "Eat & Drink",
-    blurb: "Cozy Tex-Mex spot by Dollar General with friendly vibes.",
+    blurb: "Cozy Tex-Mex spot by Dollar General with friendly vibes. This tiny local favorite can be tough to snag a seat during lunch or dinner, but they also do takeout. Recommend the Chile Relleno.",
     rating: 4,
   },
   {
@@ -91,7 +91,7 @@ const DATA = [
     id: "cochineal",
     name: "Cochineal",
     category: "Eat & Drink",
-    blurb: "Thoughtful, high-end dining. Supposed to reopen in summer. Keep an eye on it.",
+    blurb: "Refined dining led by James Beard Award semifinalist Chef Alexandra Gates. Features a daily-changing prix fixe menu with locally sourced ingredients inspired by European and West Texan traditions. Intimate setting with a 30-seat dining room and 40-seat courtyard.",
     rating: 4,
   },
   {
@@ -197,7 +197,7 @@ const DATA = [
     name: "Chinati Foundation",
     category: "Short Trips & Art",
     blurb:
-      "Reservations are required to go inside, but the grounds are open. The newer Robert Irwin installation plays beautifully with light.",
+      "Established in 1986 by minimalist artist Donald Judd on 340 acres of a former military base. Features permanent large-scale installations including Judd's 100 aluminum pieces, Dan Flavin's fluorescent light works, and John Chamberlain's sculptures. Reservations required for guided tours. The grounds showcase how art, architecture, and the desert landscape integrate into a cohesive experience.",
     rating: 5,
   },
   {
