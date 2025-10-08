@@ -13,13 +13,14 @@ const DATA = [
   // Eat & Drink
   {
     id: "hotel-paisano",
-    name: "Hotel Paisano / Jett’s Grill",
+    name: "Hotel Paisano / Jett's Grill",
     category: "Eat & Drink",
     blurb:
-      "Lovely 1930s hotel with charm. Free coffee or lemonade depending on the hour. Jett’s bar and grill is on site. A reliable pick when other spots are closed.",
+      "Lovely 1930s hotel with charm. Free coffee or lemonade depending on the hour. Jett's bar and grill is on site. A reliable pick when other spots are closed.",
     tips:
       "Lunch starts at 2 pm. Sip something in the courtyard. Check out the Giant film photos. The pool is a classic hang.",
     rating: 4,
+    coords: [30.3077, -104.0197], // 207 N Highland Ave
   },
   {
     id: "angels",
@@ -86,6 +87,7 @@ const DATA = [
     blurb:
       "Neighborhood bar with free pool tables and a friendly crowd. It's the diviest of dive bars in Marfa. Weird hours.",
     rating: 3,
+    coords: [30.3068, -104.0177], // 306 E San Antonio St
   },
   {
     id: "cochineal",
@@ -337,13 +339,20 @@ function MapView({ results, category }) {
       });
 
       // Add markers for each result
+      const markers = [];
       results.forEach((item, index) => {
-        // Create a slight offset for each marker so they don't all stack on top of each other
-        // In a real app, you'd have actual coordinates for each location
-        const lat = marfaCenter[0] + (Math.random() - 0.5) * 0.02;
-        const lng = marfaCenter[1] + (Math.random() - 0.5) * 0.02;
+        // Use actual coordinates if available, otherwise distribute around Marfa center
+        let lat, lng;
+        if (item.coords && item.coords.length === 2) {
+          [lat, lng] = item.coords;
+        } else {
+          // Fallback: create a slight offset for locations without coords
+          lat = marfaCenter[0] + (Math.random() - 0.5) * 0.02;
+          lng = marfaCenter[1] + (Math.random() - 0.5) * 0.02;
+        }
 
         const marker = window.L.marker([lat, lng]).addTo(mapInstanceRef.current);
+        markers.push({ marker, coords: [lat, lng] });
         
         // Create popup content with name, rating, and description
         const popupContent = `
@@ -361,13 +370,9 @@ function MapView({ results, category }) {
       });
 
       // Fit bounds to show all markers if there are any
-      if (results.length > 0) {
+      if (markers.length > 0) {
         const group = new window.L.featureGroup(
-          results.map((item, index) => {
-            const lat = marfaCenter[0] + (Math.random() - 0.5) * 0.02;
-            const lng = marfaCenter[1] + (Math.random() - 0.5) * 0.02;
-            return window.L.marker([lat, lng]);
-          })
+          markers.map(m => m.marker)
         );
         mapInstanceRef.current.fitBounds(group.getBounds().pad(0.1));
       }
