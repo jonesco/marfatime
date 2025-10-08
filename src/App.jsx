@@ -285,6 +285,7 @@ export default function App() {
   // Search, tabs, sorting
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
+  const [previousCategory, setPreviousCategory] = useState("All"); // Track category before search
   const [sort, setSort] = useState("name");
   const [showSearch, setShowSearch] = useState(false);
   const inputRef = useRef(null);
@@ -387,15 +388,25 @@ export default function App() {
                     ref={inputRef}
                     value={query}
                     onChange={(e) => {
-                      const v = e.target.value; setQuery(v);
-                      if (v.trim() === "") setShowSearch(false);
+                      const v = e.target.value;
+                      setQuery(v);
+                      
+                      if (v.trim() === "") {
+                        // Clear search - restore previous category
+                        setCategory(previousCategory);
+                        setShowSearch(false);
+                      } else if (query === "") {
+                        // Starting search - save current category and show all
+                        setPreviousCategory(category);
+                        setCategory("All");
+                      }
                     }}
-                    onKeyDown={(e) => { if (e.key === "Escape") { setQuery(""); setShowSearch(false); } }}
+                    onKeyDown={(e) => { if (e.key === "Escape") { setQuery(""); setCategory(previousCategory); setShowSearch(false); } }}
                     placeholder="Search Marfa spots (type to filter)"
                     className="w-full outline-none placeholder:text-neutral-400"
                     aria-label="Search Marfa spots"
                   />
-                  <button onClick={() => { setQuery(""); setShowSearch(false); }} className="p-1 rounded hover:bg-neutral-100" aria-label="Close search" title="Close search">
+                  <button onClick={() => { setQuery(""); setCategory(previousCategory); setShowSearch(false); }} className="p-1 rounded hover:bg-neutral-100" aria-label="Close search" title="Close search">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -488,7 +499,7 @@ export default function App() {
         {/* Results */}
         <section>
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">Places and experiences</h2>
+            <h2 className="text-lg font-semibold">{category}</h2>
             <span className="text-sm text-neutral-500">{results.length} results</span>
           </div>
           <div className="grid grid-cols-1 gap-4">
