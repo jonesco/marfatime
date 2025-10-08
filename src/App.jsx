@@ -10,6 +10,12 @@ import { Search, X, SlidersHorizontal, MapPin, Link as LinkIcon, Utensils, Store
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 
 const DATA = [
+  // NOTE: To add accurate coordinates for map pins:
+  // 1. Search location on Google Maps
+  // 2. Right-click the red pin
+  // 3. Click coordinates to copy
+  // 4. Add as: coords: [latitude, longitude]
+  
   // Eat & Drink
   {
     id: "hotel-paisano",
@@ -20,7 +26,7 @@ const DATA = [
     tips:
       "Lunch starts at 2 pm. Sip something in the courtyard. Check out the Giant film photos. The pool is a classic hang.",
     rating: 4,
-    coords: [30.3077, -104.0197], // 207 N Highland Ave
+    coords: [30.307656, -104.019722], // 207 N Highland Ave - UPDATE WITH ACTUAL COORDS FROM GOOGLE MAPS
   },
   {
     id: "angels",
@@ -87,7 +93,7 @@ const DATA = [
     blurb:
       "Neighborhood bar with free pool tables and a friendly crowd. It's the diviest of dive bars in Marfa. Weird hours.",
     rating: 3,
-    coords: [30.3068, -104.0177], // 306 E San Antonio St
+    coords: [30.306833, -104.017694], // 306 E San Antonio St - UPDATE WITH ACTUAL COORDS FROM GOOGLE MAPS
   },
   {
     id: "cochineal",
