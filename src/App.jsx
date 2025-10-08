@@ -304,6 +304,102 @@ function isDark(period) {
   return period === "night" || period === "sunset" || period === "midday";
 }
 
+// ---------------------------
+// Map View Component
+// ---------------------------
+function MapView({ results, category }) {
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+
+  useEffect(() => {
+    // Marfa, TX coordinates
+    const marfaCenter = [30.3077, -104.0197];
+
+    // Initialize map if not already created
+    if (!mapInstanceRef.current && mapRef.current) {
+      const map = window.L.map(mapRef.current).setView(marfaCenter, 13);
+      
+      // Add OpenStreetMap tiles
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      }).addTo(map);
+
+      mapInstanceRef.current = map;
+    }
+
+    // Clear existing markers
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.eachLayer((layer) => {
+        if (layer instanceof window.L.Marker) {
+          mapInstanceRef.current.removeLayer(layer);
+        }
+      });
+
+      // Add markers for each result
+      results.forEach((item, index) => {
+        // Create a slight offset for each marker so they don't all stack on top of each other
+        // In a real app, you'd have actual coordinates for each location
+        const lat = marfaCenter[0] + (Math.random() - 0.5) * 0.02;
+        const lng = marfaCenter[1] + (Math.random() - 0.5) * 0.02;
+
+        const marker = window.L.marker([lat, lng]).addTo(mapInstanceRef.current);
+        
+        // Create popup content with name, rating, and description
+        const popupContent = `
+          <div style="min-width: 200px;">
+            <h3 style="font-weight: 600; margin-bottom: 4px;">${item.name}</h3>
+            <div style="color: #d97706; font-size: 14px; margin-bottom: 4px;">${stars(item.rating ?? 3)}</div>
+            <p style="font-size: 13px; color: #4b5563; margin-bottom: 8px;">${item.blurb || ''}</p>
+            <a href="${toMapQuery(item.name)}" target="_blank" rel="noreferrer" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 12px; text-decoration: none; color: #374151; background: white;">
+              <span>Get Directions</span>
+            </a>
+          </div>
+        `;
+        
+        marker.bindPopup(popupContent);
+      });
+
+      // Fit bounds to show all markers if there are any
+      if (results.length > 0) {
+        const group = new window.L.featureGroup(
+          results.map((item, index) => {
+            const lat = marfaCenter[0] + (Math.random() - 0.5) * 0.02;
+            const lng = marfaCenter[1] + (Math.random() - 0.5) * 0.02;
+            return window.L.marker([lat, lng]);
+          })
+        );
+        mapInstanceRef.current.fitBounds(group.getBounds().pad(0.1));
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [results]);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">{category}</h2>
+        <span className="text-sm text-neutral-500">{results.length} locations</span>
+      </div>
+      
+      {/* Leaflet Map Container */}
+      <div className="bg-white rounded-2xl shadow overflow-hidden">
+        <div ref={mapRef} style={{ height: '600px', width: '100%' }}></div>
+      </div>
+
+      <div className="mt-4 text-sm text-neutral-500 text-center">
+        Click on map pins to see details about each location
+      </div>
+    </div>
+  );
+}
 
 // ---------------------------
 // Component
@@ -564,64 +660,7 @@ export default function App() {
         <section>
           {viewMode === "map" ? (
             // Map View
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">{category}</h2>
-                <span className="text-sm text-neutral-500">{results.length} locations</span>
-              </div>
-              
-              {/* Embedded Google Maps with all locations */}
-              <div className="bg-white rounded-2xl shadow overflow-hidden mb-6">
-                <iframe
-                  width="100%"
-                  height="600"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                  allowFullScreen
-                  referrerPolicy="no-referrer-when-downgrade"
-                  src={`https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=Marfa+TX&zoom=14`}
-                  title="Marfa locations map"
-                ></iframe>
-              </div>
-
-              {/* List of locations below map */}
-              <div className="space-y-2">
-                <h3 className="text-md font-semibold text-neutral-700 mb-3">Locations ({results.length})</h3>
-                {results.map((item) => (
-                  <div key={item.id} className="bg-white rounded-xl shadow-sm p-3 flex items-center justify-between hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="shrink-0 w-8 h-8 rounded-lg bg-neutral-100 grid place-items-center">
-                        {item.category === "Eat & Drink" ? (
-                          <Utensils className="w-4 h-4" />
-                        ) : item.category === "Shops & Things to Do" ? (
-                          <Store className="w-4 h-4" />
-                        ) : (
-                          <Compass className="w-4 h-4" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm">{item.name}</h4>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-amber-700">{stars(item.rating ?? 3)}</span>
-                          <span className="text-xs text-neutral-500">·</span>
-                          <span className="text-xs text-neutral-500">{item.category}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <a 
-                      href={toMapQuery(item.name)} 
-                      target="_blank" 
-                      rel="noreferrer" 
-                      className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs hover:bg-neutral-50"
-                      title="Open in Maps"
-                    >
-                      <MapPin className="w-3.5 h-3.5" />
-                      Directions
-                    </a>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <MapView results={results} category={category} />
           ) : groupedResults ? (
             // Grouped search results - no main header
             <div>
