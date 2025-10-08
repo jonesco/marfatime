@@ -115,6 +115,13 @@ const DATA = [
     blurb: "Best hamburger in Far West Texas in my opinion. Open 11-4pm, Wednesday - Thursday. Real good.",
     rating: 5,
   },
+  {
+    id: "margarets",
+    name: "Margaret's in Marfa",
+    category: "Eat & Drink",
+    blurb: "Cozy eatery with favorites like cheese toast with burrata and spaghetti bolognese. Popular spot that gets busy with wait times during peak hours. First-come, first-served—no reservations accepted. Call ahead for takeout.",
+    rating: 5,
+  },
 
   // Shops & Things to Do
   {
