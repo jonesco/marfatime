@@ -352,6 +352,23 @@ export default function App() {
     return arr;
   }, [query, category, sort, items]);
 
+  // Group search results by category when searching
+  const groupedResults = useMemo(() => {
+    if (!query.trim() || category !== "All") {
+      return null; // Don't group when not searching or when on specific category
+    }
+
+    const grouped = {};
+    results.forEach(item => {
+      if (!grouped[item.category]) {
+        grouped[item.category] = [];
+      }
+      grouped[item.category].push(item);
+    });
+
+    return grouped;
+  }, [results, query, category]);
+
   return (
     <div className="min-h-screen bg-neutral-50 text-neutral-900">
       {/* subtle animated gradient keyframes with reduced-motion fallback */}
@@ -382,7 +399,7 @@ export default function App() {
           <div className="flex items-center gap-2 py-3 relative">
             <div className="flex-1 min-w-0">
               {showSearch ? (
-                <div className="flex items-center gap-2 border rounded-xl px-3 py-2 bg-white">
+                <div className="flex items-center gap-2 border rounded-xl px-3 py-2 bg-white h-10">
                   <Search className="w-4 h-4 text-neutral-500" />
                   <input
                     ref={inputRef}
@@ -418,7 +435,7 @@ export default function App() {
                       <select
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
-                        className="w-full border rounded-xl pl-3 pr-8 py-2 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-neutral-300"
+                        className="w-full border rounded-xl pl-3 pr-8 py-2 text-sm h-10 appearance-none focus:outline-none focus:ring-2 focus:ring-neutral-300"
                         aria-label="Select category"
                       >
                         {CATEGORIES.map((c) => (
@@ -437,7 +454,7 @@ export default function App() {
                         role="tab"
                         aria-selected={category === c.key}
                         onClick={() => setCategory(c.key)}
-                        className={`px-4 py-2 rounded-xl text-sm whitespace-nowrap focus:outline-none ${
+                        className={`px-4 py-2 rounded-xl text-sm whitespace-nowrap h-10 flex items-center focus:outline-none ${
                           category === c.key ? "bg-neutral-900 text-white" : "bg-white text-neutral-800 border border-neutral-200 hover:bg-neutral-50 focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400"
                         }`}
                       >
@@ -498,55 +515,120 @@ export default function App() {
 
         {/* Results */}
         <section>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">{category}</h2>
-            <span className="text-sm text-neutral-500">{results.length} results</span>
-          </div>
-          <div className="grid grid-cols-1 gap-4">
-            {results.map((item) => (
-              <article key={item.id} className="bg-white rounded-2xl shadow p-4 flex flex-col">
-                <div className="flex items-start gap-3">
-                  <div className="shrink-0 w-10 h-10 rounded-xl bg-neutral-100 grid place-items-center">
-                    {item.category === "Eat & Drink" ? (
-                      <Utensils className="w-5 h-5" />
-                    ) : item.category === "Shops & Things to Do" ? (
-                      <Store className="w-5 h-5" />
-                    ) : (
-                      <Compass className="w-5 h-5" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold leading-tight">{item.name}</h3>
+          {groupedResults ? (
+            // Grouped search results - no main header
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm text-neutral-500">{results.length} results found</span>
+              </div>
+              <div className="space-y-6">
+              {Object.entries(groupedResults).map(([categoryName, categoryItems]) => (
+                <div key={categoryName}>
+                  <h3 className="text-md font-semibold text-neutral-700 mb-3">{categoryName}</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {categoryItems.map((item) => (
+                      <article key={item.id} className="bg-white rounded-2xl shadow p-4 flex flex-col">
+                        <div className="flex items-start gap-3">
+                          <div className="shrink-0 w-10 h-10 rounded-xl bg-neutral-100 grid place-items-center">
+                            {item.category === "Eat & Drink" ? (
+                              <Utensils className="w-5 h-5" />
+                            ) : item.category === "Shops & Things to Do" ? (
+                              <Store className="w-5 h-5" />
+                            ) : (
+                              <Compass className="w-5 h-5" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold leading-tight">{item.name}</h4>
 
-                    <div className="mt-1 flex items-center gap-2 text-xs">
-                      <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">{item.category}</span>
-                    </div>
+                            <div className="mt-1 flex items-center gap-2 text-xs">
+                              <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">{item.category}</span>
+                            </div>
 
-                    <div className="mt-1 text-sm" aria-label={`Rating ${item.rating ?? 3} out of 5`}>
-                      <span className="font-medium text-amber-700">{stars(item.rating ?? 3)}</span>
-                    </div>
+                            <div className="mt-1 text-sm" aria-label={`Rating ${item.rating ?? 3} out of 5`}>
+                              <span className="font-medium text-amber-700">{stars(item.rating ?? 3)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {item.blurb && <p className="mt-3 text-sm text-neutral-700">{item.blurb}</p>}
+
+                        {item.tips && (
+                          <p className="mt-2 text-sm text-neutral-600"><span className="font-medium">Tip:</span> {item.tips}</p>
+                        )}
+
+                        <div className="mt-4 flex items-center gap-2">
+                          <a href={toMapQuery(item.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50" title="Open in Maps">
+                            <MapPin className="w-4 h-4" />
+                            Maps
+                          </a>
+                          <a href={toWebQuery(item.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50" title="Search the web">
+                            <LinkIcon className="w-4 h-4" />
+                            Search
+                          </a>
+                        </div>
+                      </article>
+                    ))}
                   </div>
                 </div>
+              ))}
+              </div>
+              </div>
+            </div>
+          ) : (
+            // Regular category results
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-lg font-semibold">{category}</h2>
+                <span className="text-sm text-neutral-500">{results.length} results</span>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+              {results.map((item) => (
+                <article key={item.id} className="bg-white rounded-2xl shadow p-4 flex flex-col">
+                  <div className="flex items-start gap-3">
+                    <div className="shrink-0 w-10 h-10 rounded-xl bg-neutral-100 grid place-items-center">
+                      {item.category === "Eat & Drink" ? (
+                        <Utensils className="w-5 h-5" />
+                      ) : item.category === "Shops & Things to Do" ? (
+                        <Store className="w-5 h-5" />
+                      ) : (
+                        <Compass className="w-5 h-5" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold leading-tight">{item.name}</h3>
 
-                {item.blurb && <p className="mt-3 text-sm text-neutral-700">{item.blurb}</p>}
+                      <div className="mt-1 flex items-center gap-2 text-xs">
+                        <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">{item.category}</span>
+                      </div>
 
-                {item.tips && (
-                  <p className="mt-2 text-sm text-neutral-600"><span className="font-medium">Tip:</span> {item.tips}</p>
-                )}
+                      <div className="mt-1 text-sm" aria-label={`Rating ${item.rating ?? 3} out of 5`}>
+                        <span className="font-medium text-amber-700">{stars(item.rating ?? 3)}</span>
+                      </div>
+                    </div>
+                  </div>
 
-                <div className="mt-4 flex items-center gap-2">
-                  <a href={toMapQuery(item.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50" title="Open in Maps">
-                    <MapPin className="w-4 h-4" />
-                    Maps
-                  </a>
-                  <a href={toWebQuery(item.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50" title="Search the web">
-                    <LinkIcon className="w-4 h-4" />
-                    Search
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
+                  {item.blurb && <p className="mt-3 text-sm text-neutral-700">{item.blurb}</p>}
+
+                  {item.tips && (
+                    <p className="mt-2 text-sm text-neutral-600"><span className="font-medium">Tip:</span> {item.tips}</p>
+                  )}
+
+                  <div className="mt-4 flex items-center gap-2">
+                    <a href={toMapQuery(item.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50" title="Open in Maps">
+                      <MapPin className="w-4 h-4" />
+                      Maps
+                    </a>
+                    <a href={toWebQuery(item.name)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50" title="Search the web">
+                      <LinkIcon className="w-4 h-4" />
+                      Search
+                    </a>
+                  </div>
+                </article>
+              ))}
+              </div>
+            </div>
+          )}
         </section>
       </main>
 
