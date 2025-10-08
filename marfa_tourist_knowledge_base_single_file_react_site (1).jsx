@@ -33,7 +33,7 @@ const DATA = [
     name: "Angel’s",
     category: "Eat & Drink",
     blurb: "Cozy Tex-Mex spot by Dollar General with friendly vibes.",
-    rating: 3,
+    rating: 4,
   },
   {
     id: "bordo",
@@ -55,7 +55,7 @@ const DATA = [
     category: "Eat & Drink",
     blurb:
       "Beloved breakfast burritos. A little Spanish goes a long way. Local lore says Matthew McConaughey is a fan.",
-    tips: "You can even spot his photos on the wall.",
+    tips: "Cash only",
     rating: 4,
   },
   {
@@ -69,7 +69,7 @@ const DATA = [
     id: "st-george",
     name: "Hotel Saint George",
     category: "Eat & Drink",
-    blurb: "Tasty menu and usually open. Shares a lobby with Marfa Book Company.",
+    blurb: "Decent menu and usually open. Shares a lobby with Marfa Book Company.",
     rating: 3,
   },
   {
@@ -91,7 +91,7 @@ const DATA = [
     name: "The Pony",
     category: "Eat & Drink",
     blurb:
-      "Neighborhood bar with free pool tables and a friendly crowd. No liquor license, but there is food.",
+      "Neighborhood bar with free pool tables and a friendly crowd. It's the diviest of dive bars in Marfa. Weird hours.",
     rating: 3,
   },
   {
@@ -126,10 +126,10 @@ const DATA = [
     rating: 5,
   },
   {
-    id: "marfa-book-store",
-    name: "Marfa Book Store",
+    id: "marfa-book-company",
+    name: "Marfa Book Company",
     category: "Shops & Things to Do",
-    blurb: "Tiny artsy bookshop that is fun to browse.",
+    blurb: "Artsy bookshop that is fun to browse. In the lobby of the St. George Hotel.",
     rating: 3,
   },
   {
@@ -145,7 +145,7 @@ const DATA = [
     id: "marfa-lights",
     name: "Marfa Lights Viewing Area",
     category: "Short Trips & Art",
-    blurb: "About 15 minutes east on Hwy 90. A long-running local legend with a proper viewing stand.",
+    blurb: "About 15 minutes east on Hwy 90. A long-running local legend with a proper viewing stand. Are they really just car headlights far off into the distance? Who knows, just go with it.",
     rating: 3,
   },
   {
@@ -177,7 +177,7 @@ const DATA = [
     name: "McDonald Observatory",
     category: "Short Trips & Art",
     blurb: "Pairs perfectly with a Fort Davis visit. Check the star party times before you go.",
-    rating: 4,
+    rating: 5,
   },
   {
     id: "chinati-foundation",
@@ -185,7 +185,7 @@ const DATA = [
     category: "Short Trips & Art",
     blurb:
       "Reservations are required to go inside, but the grounds are open. The newer Robert Irwin installation plays beautifully with light.",
-    rating: 4,
+    rating: 5,
   },
   {
     id: "judd-foundation",

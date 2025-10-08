@@ -7,6 +7,7 @@ import { Search, X, SlidersHorizontal, MapPin, Link as LinkIcon, Utensils, Store
 // ---------------------------
 // Data & persistence helpers
 // ---------------------------
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
 
 const DATA = [
   // Eat & Drink
