@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
-import { Search, X, SlidersHorizontal, MapPin, Link as LinkIcon, Utensils, Store, Compass } from "lucide-react";
+import { Search, X, SlidersHorizontal, MapPin, Link as LinkIcon, Utensils, Store, Compass, Map, List } from "lucide-react";
 
 // Marfa Time - single file React site
 // Friendly, sophisticated knowledge base for visitors. Client-only, no external fetches.
@@ -318,6 +318,7 @@ export default function App() {
   const inputRef = useRef(null);
   const [showFilterFlyout, setShowFilterFlyout] = useState(false);
   const filterRef = useRef(null);
+  const [viewMode, setViewMode] = useState("list"); // "list" or "map"
 
   // Time & theme
   const [now, setNow] = useState(new Date());
@@ -495,6 +496,25 @@ export default function App() {
 
             {!showSearch && (
               <div className="flex items-center gap-2">
+                {/* View Mode Toggle */}
+                <div className="flex items-center border rounded-xl bg-white overflow-hidden">
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`p-2 ${viewMode === "list" ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-50"}`}
+                    aria-label="List view"
+                    title="List view"
+                  >
+                    <List className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("map")}
+                    className={`p-2 ${viewMode === "map" ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-50"}`}
+                    aria-label="Map view"
+                    title="Map view"
+                  >
+                    <Map className="w-5 h-5" />
+                  </button>
+                </div>
                 <button
                   onClick={() => setShowFilterFlyout((v) => !v)}
                   className="p-2 rounded-xl border bg-white hover:bg-neutral-50"
@@ -542,7 +562,67 @@ export default function App() {
 
         {/* Results */}
         <section>
-          {groupedResults ? (
+          {viewMode === "map" ? (
+            // Map View
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">{category}</h2>
+                <span className="text-sm text-neutral-500">{results.length} locations</span>
+              </div>
+              
+              {/* Embedded Google Maps with all locations */}
+              <div className="bg-white rounded-2xl shadow overflow-hidden mb-6">
+                <iframe
+                  width="100%"
+                  height="600"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={`https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=Marfa+TX&zoom=14`}
+                  title="Marfa locations map"
+                ></iframe>
+              </div>
+
+              {/* List of locations below map */}
+              <div className="space-y-2">
+                <h3 className="text-md font-semibold text-neutral-700 mb-3">Locations ({results.length})</h3>
+                {results.map((item) => (
+                  <div key={item.id} className="bg-white rounded-xl shadow-sm p-3 flex items-center justify-between hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="shrink-0 w-8 h-8 rounded-lg bg-neutral-100 grid place-items-center">
+                        {item.category === "Eat & Drink" ? (
+                          <Utensils className="w-4 h-4" />
+                        ) : item.category === "Shops & Things to Do" ? (
+                          <Store className="w-4 h-4" />
+                        ) : (
+                          <Compass className="w-4 h-4" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-sm">{item.name}</h4>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs text-amber-700">{stars(item.rating ?? 3)}</span>
+                          <span className="text-xs text-neutral-500">·</span>
+                          <span className="text-xs text-neutral-500">{item.category}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <a 
+                      href={toMapQuery(item.name)} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs hover:bg-neutral-50"
+                      title="Open in Maps"
+                    >
+                      <MapPin className="w-3.5 h-3.5" />
+                      Directions
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : groupedResults ? (
             // Grouped search results - no main header
             <div>
               <div className="flex items-center justify-between mb-4">
