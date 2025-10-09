@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
-import { Search, X, SlidersHorizontal, MapPin, Link as LinkIcon, Utensils, Store, Compass, Map, List } from "lucide-react";
+import { Search, X, SlidersHorizontal, MapPin, Link as LinkIcon, Utensils, Store, Compass } from "lucide-react";
 
 // Marfa Time - single file React site
 // Friendly, sophisticated knowledge base for visitors. Client-only, no external fetches.
@@ -41,6 +41,7 @@ const DATA = [
     category: "Eat & Drink",
     blurb: "Italian deli offering fresh pasta, wood-fired bread, and seasonal gelato—all made on-site with stone-milled heirloom flours. Founded by Chef Michael Serva, they also stock imported olive oils, specialty cheeses, and charcuterie. A sublime lunch stop with truly fresh, tasty bites.",
     rating: 5,
+    mustDo: true,
   },
   {
     id: "aster-marfa",
@@ -93,7 +94,7 @@ const DATA = [
     blurb:
       "Neighborhood bar with free pool tables and a friendly crowd. It's the diviest of dive bars in Marfa. Weird hours.",
     rating: 3,
-    coords: [30.306833, -104.017694], // 306 E San Antonio St - UPDATE WITH ACTUAL COORDS FROM GOOGLE MAPS
+    coords: [30.310248392792996, -104.01776478650659], // 306 E San Antonio St
   },
   {
     id: "cochineal",
@@ -122,6 +123,7 @@ const DATA = [
     category: "Eat & Drink",
     blurb: "Best hamburger in Far West Texas in my opinion. Open 11-4pm, Wednesday - Thursday. Real good.",
     rating: 5,
+    mustDo: true,
   },
   {
     id: "margarets",
@@ -129,6 +131,14 @@ const DATA = [
     category: "Eat & Drink",
     blurb: "Cozy eatery with favorites like cheese toast with burrata and spaghetti bolognese. Popular spot that gets busy with wait times during peak hours. First-come, first-served—no reservations accepted. Call ahead for takeout.",
     rating: 5,
+  },
+  {
+    id: "waterstop",
+    name: "The Waterstop",
+    category: "Eat & Drink",
+    blurb: "Family-owned comfort food spot with a shaded patio and cozy indoor dining. Known for their standout fried chicken sandwich with vinegar slaw and spicy mayo, plus jalapeño mac and cheese. The real draw? They're reliably open when you need a good meal, though busy times can mean longer waits.",
+    tips: "Try the chicken and waffles or rotisserie chicken. Pet-friendly patio.",
+    rating: 4,
   },
 
   // Shops & Things to Do
@@ -152,13 +162,14 @@ const DATA = [
     category: "Shops & Things to Do",
     blurb: "Friendly folks offering mezcal samples. You will also find plants and gifts.",
     rating: 5,
+    mustDo: true,
   },
   {
     id: "marfa-book-company",
     name: "Marfa Book Company",
     category: "Shops & Things to Do",
     blurb: "Artsy bookshop that is fun to browse. In the lobby of the St. George Hotel.",
-    rating: 3,
+    rating: 2,
   },
   {
     id: "get-go",
@@ -214,6 +225,7 @@ const DATA = [
     blurb:
       "Established in 1986 by minimalist artist Donald Judd on 340 acres of a former military base. Features permanent large-scale installations including Judd's 100 aluminum pieces, Dan Flavin's fluorescent light works, and John Chamberlain's sculptures. Reservations required for guided tours. The grounds showcase how art, architecture, and the desert landscape integrate into a cohesive experience.",
     rating: 5,
+    mustDo: true,
   },
   {
     id: "judd-foundation",
@@ -247,7 +259,7 @@ function toWebQuery(name) {
 
 function stars(rating) {
   const n = Math.max(0, Math.min(5, Math.round(rating ?? 3)));
-  return "★".repeat(n) + "☆".repeat(5 - n);
+  return "♥".repeat(n) + "♡".repeat(5 - n);
 }
 
 // Time-based sky themes for the header
@@ -313,106 +325,6 @@ function isDark(period) {
 }
 
 // ---------------------------
-// Map View Component
-// ---------------------------
-function MapView({ results, category }) {
-  const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-
-  useEffect(() => {
-    // Marfa, TX coordinates
-    const marfaCenter = [30.3077, -104.0197];
-
-    // Initialize map if not already created
-    if (!mapInstanceRef.current && mapRef.current) {
-      const map = window.L.map(mapRef.current).setView(marfaCenter, 13);
-      
-      // Add OpenStreetMap tiles
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19,
-      }).addTo(map);
-
-      mapInstanceRef.current = map;
-    }
-
-    // Clear existing markers
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.eachLayer((layer) => {
-        if (layer instanceof window.L.Marker) {
-          mapInstanceRef.current.removeLayer(layer);
-        }
-      });
-
-      // Add markers for each result
-      const markers = [];
-      results.forEach((item, index) => {
-        // Use actual coordinates if available, otherwise distribute around Marfa center
-        let lat, lng;
-        if (item.coords && item.coords.length === 2) {
-          [lat, lng] = item.coords;
-        } else {
-          // Fallback: create a slight offset for locations without coords
-          lat = marfaCenter[0] + (Math.random() - 0.5) * 0.02;
-          lng = marfaCenter[1] + (Math.random() - 0.5) * 0.02;
-        }
-
-        const marker = window.L.marker([lat, lng]).addTo(mapInstanceRef.current);
-        markers.push({ marker, coords: [lat, lng] });
-        
-        // Create popup content with name, rating, and description
-        const popupContent = `
-          <div style="min-width: 200px;">
-            <h3 style="font-weight: 600; margin-bottom: 4px;">${item.name}</h3>
-            <div style="color: #d97706; font-size: 14px; margin-bottom: 4px;">${stars(item.rating ?? 3)}</div>
-            <p style="font-size: 13px; color: #4b5563; margin-bottom: 8px;">${item.blurb || ''}</p>
-            <a href="${toMapQuery(item.name)}" target="_blank" rel="noreferrer" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 12px; text-decoration: none; color: #374151; background: white;">
-              <span>Get Directions</span>
-            </a>
-          </div>
-        `;
-        
-        marker.bindPopup(popupContent);
-      });
-
-      // Fit bounds to show all markers if there are any
-      if (markers.length > 0) {
-        const group = new window.L.featureGroup(
-          markers.map(m => m.marker)
-        );
-        mapInstanceRef.current.fitBounds(group.getBounds().pad(0.1));
-      }
-    }
-
-    // Cleanup on unmount
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, [results]);
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">{category}</h2>
-        <span className="text-sm text-neutral-500">{results.length} locations</span>
-      </div>
-      
-      {/* Leaflet Map Container */}
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
-        <div ref={mapRef} style={{ height: '600px', width: '100%' }}></div>
-      </div>
-
-      <div className="mt-4 text-sm text-neutral-500 text-center">
-        Click on map pins to see details about each location
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------
 // Component
 // ---------------------------
 export default function App() {
@@ -421,11 +333,12 @@ export default function App() {
   const [category, setCategory] = useState("All");
   const [previousCategory, setPreviousCategory] = useState("All"); // Track category before search
   const [sort, setSort] = useState("name");
+  const [mustDoOnly, setMustDoOnly] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const inputRef = useRef(null);
   const [showFilterFlyout, setShowFilterFlyout] = useState(false);
   const filterRef = useRef(null);
-  const [viewMode, setViewMode] = useState("list"); // "list" or "map"
+  const filterButtonRef = useRef(null);
 
   // Time & theme
   const [now, setNow] = useState(new Date());
@@ -455,7 +368,12 @@ export default function App() {
   // Close flyout on outside click or Escape
   useEffect(() => {
     function onKey(e) { if (e.key === "Escape") setShowFilterFlyout(false); }
-    function onClick(e) { if (filterRef.current && !filterRef.current.contains(e.target)) setShowFilterFlyout(false); }
+    function onClick(e) { 
+      if (filterRef.current && !filterRef.current.contains(e.target) && 
+          filterButtonRef.current && !filterButtonRef.current.contains(e.target)) {
+        setShowFilterFlyout(false);
+      }
+    }
     if (showFilterFlyout) {
       document.addEventListener("keydown", onKey);
       document.addEventListener("mousedown", onClick);
@@ -473,6 +391,10 @@ export default function App() {
       arr = arr.filter((d) => d.category === category);
     }
 
+    if (mustDoOnly) {
+      arr = arr.filter((d) => d.mustDo === true);
+    }
+
     if (query.trim()) {
       const q = query.toLowerCase();
       arr = arr.filter((d) =>
@@ -485,7 +407,7 @@ export default function App() {
     if (sort === "name") arr.sort((a, b) => a.name.localeCompare(b.name));
     if (sort === "rating") arr.sort((a, b) => (b.rating ?? 3) - (a.rating ?? 3));
     return arr;
-  }, [query, category, sort, items]);
+  }, [query, category, sort, mustDoOnly, items]);
 
   // Group search results by category when searching
   const groupedResults = useMemo(() => {
@@ -517,7 +439,7 @@ export default function App() {
         button:active { outline: none !important; box-shadow: none !important; }
       `}</style>
 
-      <header className="sticky top-0 z-40 border-b" style={skyStyle} aria-label={`Header theme: ${period}`}>
+      <header className="sticky top-0 z-40" style={skyStyle} aria-label={`Header theme: ${period}`}>
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-3">
           <h1 className={`font-extrabold ${dark ? "text-white" : "text-neutral-900"}`} style={{ fontSize: "calc(1.25rem * 1.2)" }}>
             Marfa Time
@@ -529,7 +451,7 @@ export default function App() {
       </header>
 
       {/* Category controls with mobile dropdown, plus filter and search icons */}
-      <div className={`border-b ${dark ? "border-white/20" : "border-neutral-200"}`}>
+      <div className={`sticky top-[64px] z-30 border-b bg-neutral-50 ${dark ? "border-white/20" : "border-neutral-200"}`}>
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center gap-2 py-3 relative">
             <div className="flex-1 min-w-0">
@@ -603,26 +525,8 @@ export default function App() {
 
             {!showSearch && (
               <div className="flex items-center gap-2">
-                {/* View Mode Toggle */}
-                <div className="flex items-center border rounded-xl bg-white overflow-hidden">
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={`p-2 ${viewMode === "list" ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-50"}`}
-                    aria-label="List view"
-                    title="List view"
-                  >
-                    <List className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode("map")}
-                    className={`p-2 ${viewMode === "map" ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-50"}`}
-                    aria-label="Map view"
-                    title="Map view"
-                  >
-                    <Map className="w-5 h-5" />
-                  </button>
-                </div>
                 <button
+                  ref={filterButtonRef}
                   onClick={() => setShowFilterFlyout((v) => !v)}
                   className="p-2 rounded-xl border bg-white hover:bg-neutral-50"
                   aria-haspopup="dialog"
@@ -658,7 +562,21 @@ export default function App() {
                     <svg aria-hidden="true" viewBox="0 0 20 20" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500"><path fill="currentColor" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.15l3.71-2.92a.75.75 0 1 1 .92 1.18l-4.2 3.3a.75.75 0 0 1-.92 0l-4.2-3.3a.75.75 0 0 1-.02-1.06z"/></svg>
                   </div>
                 </div>
-                <div className="text-xs text-neutral-500">More filters coming soon. Tabs control category.</div>
+                {/* Filter */}
+                <div className="mb-3">
+                  <label className="text-sm font-medium">Filter</label>
+                  <div className="mt-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={mustDoOnly}
+                        onChange={(e) => setMustDoOnly(e.target.checked)}
+                        className="w-4 h-4 rounded border-neutral-300 text-neutral-900 focus:ring-2 focus:ring-neutral-400"
+                      />
+                      <span className="text-sm">Must do only</span>
+                    </label>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -669,10 +587,7 @@ export default function App() {
 
         {/* Results */}
         <section>
-          {viewMode === "map" ? (
-            // Map View
-            <MapView results={results} category={category} />
-          ) : groupedResults ? (
+          {groupedResults ? (
             // Grouped search results - no main header
             <div>
               <div className="flex items-center justify-between mb-4">
@@ -700,10 +615,11 @@ export default function App() {
 
                             <div className="mt-1 flex items-center gap-2 text-xs">
                               <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">{item.category}</span>
+                              {item.mustDo && <span className="px-2 py-0.5 rounded-full bg-black text-white font-medium">Must do</span>}
                             </div>
 
                             <div className="mt-1 text-sm" aria-label={`Rating ${item.rating ?? 3} out of 5`}>
-                              <span className="font-medium text-amber-700">{stars(item.rating ?? 3)}</span>
+                              <span className="font-medium text-magenta-600">{stars(item.rating ?? 3)}</span>
                             </div>
                           </div>
                         </div>
@@ -711,7 +627,9 @@ export default function App() {
                         {item.blurb && <p className="mt-3 text-sm text-neutral-700">{item.blurb}</p>}
 
                         {item.tips && (
-                          <p className="mt-2 text-sm text-neutral-600"><span className="font-medium">Tip:</span> {item.tips}</p>
+                          <div className="mt-2 p-3 bg-neutral-100 rounded-lg">
+                            <p className="text-sm text-neutral-700"><span className="font-medium">Tip:</span> {item.tips}</p>
+                          </div>
                         )}
 
                         <div className="mt-4 flex items-center gap-2">
@@ -756,10 +674,11 @@ export default function App() {
 
                       <div className="mt-1 flex items-center gap-2 text-xs">
                         <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">{item.category}</span>
+                        {item.mustDo && <span className="px-2 py-0.5 rounded-full bg-black text-white font-medium">Must do</span>}
                       </div>
 
                       <div className="mt-1 text-sm" aria-label={`Rating ${item.rating ?? 3} out of 5`}>
-                        <span className="font-medium text-amber-700">{stars(item.rating ?? 3)}</span>
+                        <span className="font-medium text-magenta-600">{stars(item.rating ?? 3)}</span>
                       </div>
                     </div>
                   </div>
