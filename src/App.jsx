@@ -686,7 +686,9 @@ export default function App() {
                   {item.blurb && <p className="mt-3 text-sm text-neutral-700">{item.blurb}</p>}
 
                   {item.tips && (
-                    <p className="mt-2 text-sm text-neutral-600"><span className="font-medium">Tip:</span> {item.tips}</p>
+                    <div className="mt-2 p-3 bg-neutral-100 rounded-lg">
+                      <p className="text-sm text-neutral-700"><span className="font-medium">Tip:</span> {item.tips}</p>
+                    </div>
                   )}
 
                   <div className="mt-4 flex items-center gap-2">
