@@ -283,13 +283,22 @@ function getSkyStyle(period) {
       // Milky Way feel - deep blues with starry specks via layered radial-gradients
       return {
         ...base,
-        animation: "sky-pan 36s ease-in-out infinite alternate",
+        animation: "sky-pan 120s ease-in-out infinite alternate",
         backgroundImage:
-          "radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.65), transparent 2px)," +
-          "radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.5), transparent 2px)," +
-          "radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.55), transparent 2px)," +
-          "radial-gradient(1px 1px at 85% 60%, rgba(255,255,255,0.4), transparent 2px)," +
-          "linear-gradient(120deg, #070b34 0%, #0b1e6b 45%, #1b2f8a 70%, #0a0f2c 100%)",
+          "radial-gradient(1px 1px at 5% 15%, rgba(255,255,255,0.8), transparent 2px)," +
+          "radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.6), transparent 2px)," +
+          "radial-gradient(1px 1px at 25% 75%, rgba(255,255,255,0.7), transparent 2px)," +
+          "radial-gradient(1px 1px at 35% 85%, rgba(255,255,255,0.5), transparent 2px)," +
+          "radial-gradient(1px 1px at 45% 35%, rgba(255,255,255,0.6), transparent 2px)," +
+          "radial-gradient(1px 1px at 55% 65%, rgba(255,255,255,0.8), transparent 2px)," +
+          "radial-gradient(1px 1px at 65% 45%, rgba(255,255,255,0.5), transparent 2px)," +
+          "radial-gradient(1px 1px at 75% 15%, rgba(255,255,255,0.7), transparent 2px)," +
+          "radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.6), transparent 2px)," +
+          "radial-gradient(1px 1px at 95% 25%, rgba(255,255,255,0.4), transparent 2px)," +
+          "radial-gradient(2px 2px at 20% 50%, rgba(255,255,255,0.3), transparent 3px)," +
+          "radial-gradient(2px 2px at 60% 30%, rgba(255,255,255,0.2), transparent 3px)," +
+          "radial-gradient(2px 2px at 80% 70%, rgba(255,255,255,0.4), transparent 3px)," +
+          "linear-gradient(120deg, #0a0f2c 0%, #2a1f5a 40%, #3a2f6a 60%, #0a0f2c 100%)",
         color: "#fff",
       };
     case "sunset":
@@ -571,7 +580,7 @@ export default function App() {
                         type="checkbox"
                         checked={mustDoOnly}
                         onChange={(e) => setMustDoOnly(e.target.checked)}
-                        className="w-4 h-4 rounded border-neutral-300 text-neutral-900 focus:ring-2 focus:ring-neutral-400"
+                        className="w-4 h-4 rounded border-neutral-300 text-black focus:ring-2 focus:ring-neutral-400 accent-black"
                       />
                       <span className="text-sm">Must do only</span>
                     </label>
