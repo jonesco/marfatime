@@ -172,6 +172,14 @@ const DATA = [
     rating: 2,
   },
   {
+    id: "stop-and-read-books",
+    name: "Stop & Read Books",
+    category: "Shops & Things to Do",
+    blurb: "Thoughtfully curated bookstore with a carefully selected collection of books for all ages. Features a cozy reading nook, complimentary coffee, and unique gifts. The friendly staff creates an inviting atmosphere perfect for browsing, and they also carry wine and homewares. A must-visit for book lovers looking for quality selections beyond the mainstream.",
+    tips: "Enjoy complimentary coffee",
+    rating: 4,
+  },
+  {
     id: "get-go",
     name: "The Get-Go",
     category: "Shops & Things to Do",
