@@ -366,9 +366,17 @@ export default function App() {
   useEffect(() => {
     const updateFavicon = () => {
       const period = getPeriod(new Date().getHours());
-      const favicon = document.getElementById('dynamic-favicon');
-      if (favicon) {
-        favicon.href = `/favicon-${period}.png`;
+      
+      // Update PNG favicon
+      const faviconPng = document.getElementById('dynamic-favicon');
+      if (faviconPng) {
+        faviconPng.href = `/favicon-${period}.png`;
+      }
+      
+      // Update ICO favicon
+      const faviconIco = document.querySelector('link[rel="icon"][type="image/x-icon"]');
+      if (faviconIco) {
+        faviconIco.href = `/favicon-${period}.ico`;
       }
     };
     
