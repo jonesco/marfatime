@@ -272,10 +272,9 @@ function stars(rating) {
 
 // Time-based sky themes for the header
 function getPeriod(hour) {
-  // Night: 20-5, Sunrise: 6-8, Morning: 8-11, Midday: 11-17, Sunset: 17-20
+  // Night: 20-5, Morning: 6-11, Midday: 11-17, Sunset: 17-20
   if (hour >= 20 || hour < 6) return "night";
-  if (hour >= 6 && hour < 8) return "sunrise";
-  if (hour >= 8 && hour < 11) return "morning";
+  if (hour >= 6 && hour < 11) return "morning";
   if (hour >= 11 && hour < 17) return "midday";
   return "sunset";
 }
@@ -363,9 +362,21 @@ export default function App() {
   // Data state
   const [items, setItems] = useState(DATA);
 
-  // Clock for header theme
+  // Clock for header theme and dynamic favicon
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60000);
+    const updateFavicon = () => {
+      const period = getPeriod(new Date().getHours());
+      const favicon = document.getElementById('dynamic-favicon');
+      if (favicon) {
+        favicon.href = `/favicon-${period}.png`;
+      }
+    };
+    
+    updateFavicon(); // Set immediately on mount
+    const id = setInterval(() => {
+      setNow(new Date());
+      updateFavicon();
+    }, 60000);
     return () => clearInterval(id);
   }, []);
 
@@ -745,8 +756,8 @@ function runTests() {
     // getPeriod boundaries
     console.assert(getPeriod(0) === "night", "0 should be night");
     console.assert(getPeriod(5) === "night", "5 should be night");
-    console.assert(getPeriod(6) === "sunrise", "6 should be sunrise");
-    console.assert(getPeriod(8) === "morning", "8 should be morning");
+    console.assert(getPeriod(6) === "morning", "6 should be morning");
+    console.assert(getPeriod(10) === "morning", "10 should be morning");
     console.assert(getPeriod(11) === "midday", "11 should be midday");
     console.assert(getPeriod(17) === "sunset", "17 should be sunset");
     console.assert(getPeriod(20) === "night", "20 should be night");
