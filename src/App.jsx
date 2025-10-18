@@ -362,29 +362,9 @@ export default function App() {
   // Data state
   const [items, setItems] = useState(DATA);
 
-  // Clock for header theme and dynamic favicon
+  // Clock for header theme
   useEffect(() => {
-    const updateFavicon = () => {
-      const period = getPeriod(new Date().getHours());
-      
-      // Update PNG favicon
-      const faviconPng = document.getElementById('dynamic-favicon');
-      if (faviconPng) {
-        faviconPng.href = `/favicon-${period}.png`;
-      }
-      
-      // Update ICO favicon
-      const faviconIco = document.querySelector('link[rel="icon"][type="image/x-icon"]');
-      if (faviconIco) {
-        faviconIco.href = `/favicon-${period}.ico`;
-      }
-    };
-    
-    updateFavicon(); // Set immediately on mount
-    const id = setInterval(() => {
-      setNow(new Date());
-      updateFavicon();
-    }, 60000);
+    const id = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(id);
   }, []);
 
