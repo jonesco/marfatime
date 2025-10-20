@@ -371,7 +371,7 @@ function getSkyStyle(period) {
           "radial-gradient(2px 2px at 93% 52%, rgba(255,255,255,0.5), transparent 4px)," +
           "radial-gradient(2px 2px at 96% 15%, rgba(255,255,255,0.4), transparent 4px)," +
           "radial-gradient(2px 2px at 98% 82%, rgba(255,255,255,0.3), transparent 4px)," +
-          "linear-gradient(120deg, #0a0f2c 0%, #2a1f5a 30%, #262e94 50%, #3a2f6a 70%, #0a0f2c 100%)",
+          "linear-gradient(120deg, #0a0f2c 0%, #2a1f5a 30%, #262e94 50%, #392c70 70%, #0a0f2c 100%)",
         color: "#fff",
       };
     case "sunset":
