@@ -290,7 +290,7 @@ function getSkyStyle(period) {
       // Milky Way feel - deep blues with starry specks via layered radial-gradients
       return {
         ...base,
-        animation: "sky-pan 120s ease-in-out infinite alternate",
+        animation: "sky-pan 240s ease-in-out infinite alternate",
         backgroundImage:
           // Small stars (1px) - 40 total
           "radial-gradient(1px 1px at 2% 8%, rgba(255,255,255,0.8), transparent 2px)," +
