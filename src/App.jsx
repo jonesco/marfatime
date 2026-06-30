@@ -97,10 +97,10 @@ const DATA = [
   },
   {
     id: "the-pony",
-    name: "The Pony",
+    name: "Wild Mare",
     category: "Eat & Drink",
     blurb:
-      "Neighborhood bar with free pool tables and a friendly crowd. It's the diviest of dive bars in Marfa. Weird hours.",
+      "Neighborhood bar with free pool tables and a friendly crowd. It used to be called Lost Horse Saloon. It's the diviest of dive bars in Marfa. Weird hours.",
     rating: 3,
     coords: [30.310248392792996, -104.01776478650659], // 306 E San Antonio St
   },
