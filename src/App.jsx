@@ -81,6 +81,14 @@ const DATA = [
     rating: 4,
   },
   {
+    id: "coyote-coffee",
+    name: "Coyote Coffee",
+    category: "Eat & Drink",
+    blurb: "Thoughtful espresso, house-made pastries, and sourdough. Great place for coffee and a bite to eat, but it can get crowded when nothing else is open.",
+    tips: "Get an iced coffee if you want to be in and out.",
+    rating: 4,
+  },
+  {
     id: "planet-marfa",
     name: "Planet Marfa",
     category: "Eat & Drink",
